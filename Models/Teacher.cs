@@ -8,9 +8,10 @@
         public string? LastName { get; set; }
         public string? username { get; set; }
         public string? Qualification { get; set; }
-        public int SubjectId { get; set; }
-        public string? Email { get; set; }
+        public string? SubjectName { get; set; }
+        public double Salary { get; set; }
         public string? Phone { get; set; }
+        public string? Email { get; set; }
         public DateTime HireDate { get; set; }
     }
 }

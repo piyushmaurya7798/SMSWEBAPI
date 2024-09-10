@@ -69,7 +69,8 @@ namespace SMSWEBAPI.Controllers
         [HttpGet]
         public IActionResult GetTeacher()
         {
-            var data = db.Classes.ToList();
+            var data = db.Teachers.ToList();
+            Response.ContentType = "application/json";
             return Ok(data);
         }
         

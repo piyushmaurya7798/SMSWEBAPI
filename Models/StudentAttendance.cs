@@ -9,5 +9,7 @@ namespace SMSWEBAPI.Models
         public int StudentId { get; set; }
         public int ClassId { get; set; }
         public bool Status { get; set; }
+
+        public DateTime Date { get; set; }
     }
 }
