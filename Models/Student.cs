@@ -17,6 +17,7 @@ namespace SMSWEBAPI.Models
         public string? Email { get; set; }
         public string? EnrollDate { get; set; }
         public string? ClassId { get; set; }
+        public double Fees { get; set; }
 
 
     }

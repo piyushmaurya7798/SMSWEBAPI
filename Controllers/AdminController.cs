@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using SMS.Models;
 using SMSWEBAPI.Data;
 using SMSWEBAPI.Models;
+using static System.Net.Mime.MediaTypeNames;
+using System.Net.Mail;
+using System.Net;
 
 namespace SMSWEBAPI.Controllers
 {
@@ -17,17 +20,24 @@ namespace SMSWEBAPI.Controllers
             this.db = db;
             this.env = env;
         }
+
+
         [Route("AddStudent")]
         [HttpPost]
         public IActionResult AddStudent(Student s)
         {
-            db.Students.Add(s);
-            var username=s.username;
+            var username = s.username;
             string lastTwoDigits = s.Phone.Substring(s.Phone.Length - 2);
-            var password=s.username+lastTwoDigits;
+            var password = s.username + lastTwoDigits;
             string urole = "Student";
-            User u=new User()
-            { 
+            var d = db.Classes.Where(x => x.ClassName == s.ClassId).SingleOrDefault();
+            var data = db.Fees.Where(x => x.ClassId == d.ClassId).SingleOrDefault();
+            s.Fees = data.FeesValue;
+            db.Students.Add(s);
+            db.SaveChanges();
+            User u = new User()
+
+            {
                 username = username,
                 Password = password,
                 URole = urole
@@ -36,7 +46,7 @@ namespace SMSWEBAPI.Controllers
             db.SaveChanges();
             return Ok(s);
         }
-        
+
         [Route("AddTeacher")]
         [HttpPost]
         public IActionResult AddTeacher(Teacher s)
@@ -65,6 +75,11 @@ namespace SMSWEBAPI.Controllers
             db.SaveChanges();
             return Ok(c);
         }
+
+
+
+
+
         [Route("GetTeacher")]
         [HttpGet]
         public IActionResult GetTeacher()
@@ -73,29 +88,125 @@ namespace SMSWEBAPI.Controllers
             Response.ContentType = "application/json";
             return Ok(data);
         }
-        
+
         [Route("AddSubject")]
         [HttpPost]
         public IActionResult AddSubject(Subject s)
         {
-          var data= db.Subjects.Add(s);
+            var data = db.Subjects.Add(s);
             db.SaveChanges();
             return Ok(data);
         }
-        
+
         [Route("GetNoOfStudents")]
         [HttpGet]
         public IActionResult GetNoOfStudents()
         {
-          var data= db.Students.Count();
+            var data = db.Students.Count();
             return Ok(data);
         }
         [Route("NoOfTeachers")]
         [HttpGet]
         public IActionResult NoOfTeachers()
         {
-          var data= db.Teachers.Count();
+            var data = db.Teachers.Count();
             return Ok(data);
         }
-    }
+        [Route("Application")]
+        [HttpPost]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> Application([FromForm] ApplicationViewModel a)
+        {
+            //db.Applications.Add(a);
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "Images");
+            var uniqueFileName = Guid.NewGuid().ToString() + "_" + a.LatestRecords.FileName;
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await a.LatestRecords.CopyToAsync(stream);
+            }
+            SMS.Models.Application s = new SMS.Models.Application()
+            {
+                Email = a.Email,
+                Phone = a.Phone,
+                HighestQualification = a.HighestQualification,
+                Grade = a.Grade,
+                LatestRecords = filePath,
+                ApplyingFor = a.ApplyingFor,
+                Date = a.Date
+            };
+            db.Applications.Add(s);
+            db.SaveChanges();
+            return Ok("Added Application Successfull");
+        }
+        [Route("GetApplication")]
+        [HttpGet]
+        public async Task<IActionResult> GetApplication()
+        {
+            var data = db.Applications.ToList();
+            return Ok(data);
+        }
+
+        [HttpPost("SendEmails")]
+        public IActionResult SendEmails([FromBody] EmailRequest request)
+        {
+            if (request == null || request.Emails == null || !request.Emails.Any() || string.IsNullOrEmpty(request.Message))
+            {
+                return BadRequest("Invalid request.");
+            }
+
+            try
+            {
+                foreach (var email in request.Emails)
+                {
+                    // Logic for sending email
+                    SendEmail(email, request.Message);
+                }
+
+                return Ok(new { success = true, message = "Emails sent successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        private void SendEmail(string email, string message)
+        {
+            var smtpClient = new SmtpClient("smtp.gmail.com")
+            {
+                Port = 587,
+                Credentials = new NetworkCredential("piyushmaurya7798@gmail.com", "qbposjoyllyywcld"),
+                EnableSsl = true,
+            };
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress("piyushmaurya7798@gmail.com"),
+                Subject = "Application Notification",
+                Body = message,
+                IsBodyHtml = true,
+            };
+
+            mailMessage.To.Add(email);
+            smtpClient.Send(mailMessage);
+        }
+
+        [Route("Fees")]
+        [HttpPost]
+        public IActionResult AddFees(Fees s)
+        {
+            db.Fees.Add(s);
+            db.SaveChanges();
+            return Ok();
+        }
+        
+        [Route("GetClass")]
+        [HttpGet]
+        public IActionResult GetClass()
+        {
+            var data = db.Classes.ToList();
+            return Ok(data);
+        }
+    } 
 }
