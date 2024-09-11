@@ -22,5 +22,6 @@ namespace SMSWEBAPI.Data
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<SMS.Models.Application> Applications { get; set; }
         public DbSet<Fees> Fees { get; set; }
+        public DbSet<Event> Events { get; set; }
     }
 }

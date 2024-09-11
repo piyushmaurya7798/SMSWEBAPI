@@ -6,6 +6,9 @@ using SMSWEBAPI.Models;
 using static System.Net.Mime.MediaTypeNames;
 using System.Net.Mail;
 using System.Net;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.Blazor;
 
 namespace SMSWEBAPI.Controllers
 {
@@ -87,6 +90,18 @@ namespace SMSWEBAPI.Controllers
             var data = db.Teachers.ToList();
             Response.ContentType = "application/json";
             return Ok(data);
+        }
+        
+        [Route("CheckExistingEmailId/{username}")]
+        [HttpGet]
+        public IActionResult CheckExistingEmailId(string username)
+        {
+            var data = db.Users.Where(x => x.username == username).SingleOrDefault();
+            if (data == null) 
+            {
+                return Ok("Good to Go");
+            }
+            return Ok("notgood");
         }
 
         [Route("AddSubject")]
@@ -200,7 +215,7 @@ namespace SMSWEBAPI.Controllers
             db.SaveChanges();
             return Ok();
         }
-        
+
         [Route("GetClass")]
         [HttpGet]
         public IActionResult GetClass()
@@ -208,5 +223,86 @@ namespace SMSWEBAPI.Controllers
             var data = db.Classes.ToList();
             return Ok(data);
         }
-    } 
+
+        [Route("GetAllEvents")]
+        [HttpGet]
+
+        public async Task<ActionResult<IEnumerable<Event>>> GetEvents()
+        {
+            return await db.Events.ToListAsync();
+        }
+
+        [Route("GetAllEvents/{id}")]
+        [HttpGet]
+        public async Task<ActionResult<Event>> GetEvent(int id)
+        {
+            var eventItem = await db.Events.FindAsync(id);
+
+            if (eventItem == null)
+            {
+                return NotFound();
+            }
+            return eventItem;
+        }
+
+        [Route("CreateEvent")]
+        [HttpPost]
+        public async Task<ActionResult<Event>> CreateEvent([FromBody]Event eventItem)
+        {
+            db.Events.Add(eventItem);
+            await db.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetEvent), new { id = eventItem.EventId }, eventItem);
+        }
+
+        [Route("UpdateEvent/{id}")]
+        [HttpPut]
+        public async Task<IActionResult> UpdateEvent(int id, Event eventItem)
+        {
+            if (id != eventItem.EventId)
+            {
+                return BadRequest();
+            }
+
+            db.Entry(eventItem).State = EntityState.Modified;
+
+            try
+            {
+                await db.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!EventExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return Ok("Updated");
+        }
+
+        [Route("DeleteEvent/{id}")]
+        [HttpDelete]
+        public async Task<IActionResult> DeleteEvent(int id)
+        {
+            var eventItem = await db.Events.FindAsync(id);
+            if (eventItem == null)
+            {
+                return NotFound();
+            }
+
+            db.Events.Remove(eventItem);
+            await db.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        private bool EventExists(int id)
+        {
+            return db.Events.Any(e => e.EventId == id);
+        }
+    }
 }
