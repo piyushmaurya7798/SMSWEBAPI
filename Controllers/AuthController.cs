@@ -9,12 +9,15 @@ namespace SMSWEBAPI.Controllers
     [ApiController]
     public class AuthController : ControllerBase { 
       private readonly ApplicationDbContext db;
-    public IWebHostEnvironment env;
-    public AuthController(ApplicationDbContext db, IWebHostEnvironment env)
+        public IWebHostEnvironment env;
+             private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public AuthController(ApplicationDbContext db, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
     {
         this.db = db;
         this.env = env;
-    }
+            this._httpContextAccessor = httpContextAccessor; 
+        }
     [Route("Login")]
     [HttpPost]
     public IActionResult Login(User u)

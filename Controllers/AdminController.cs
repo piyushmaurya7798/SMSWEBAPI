@@ -304,5 +304,6 @@ namespace SMSWEBAPI.Controllers
         {
             return db.Events.Any(e => e.EventId == id);
         }
+
     }
 }
