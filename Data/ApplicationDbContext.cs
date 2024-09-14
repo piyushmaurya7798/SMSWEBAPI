@@ -29,5 +29,6 @@ namespace SMSWEBAPI.Data
         public DbSet<Curriculum> Curriculums { get; set; }
         public DbSet<TimeTable> TimeTables { get; set; }
         public DbSet<TeacherLeave> TeacherLeave { get; set; }
+        public DbSet<Chat> Chats { get; set; }
     }
 }

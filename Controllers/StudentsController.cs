@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SMSWEBAPI.Data;
 using SMSWEBAPI.Models;
 
@@ -210,5 +211,14 @@ namespace SMSWEBAPI.Controllers
                 return Ok(data);
             }
 
+
+            [Route("GetAllUsers")]
+        [HttpGet]
+        public IActionResult GetAllUsers()
+        {
+            var users = db.Users.ToList();
+            return Ok(users);
         }
+
+    }
     }
