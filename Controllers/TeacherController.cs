@@ -11,13 +11,11 @@ namespace SMSWEBAPI.Controllers
     {
         private readonly ApplicationDbContext db;
         public IWebHostEnvironment env;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public TeacherController(ApplicationDbContext db, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
+        public TeacherController(ApplicationDbContext db, IWebHostEnvironment env)
         {
             this.db = db;
             this.env = env;
-            this._httpContextAccessor = httpContextAccessor;
         }
         [Route("AddLeave")]
         [HttpPost]
@@ -28,13 +26,22 @@ namespace SMSWEBAPI.Controllers
             db.SaveChanges();
             return Ok("leave Added Successfully");
         }
+        [Route("GetLeave")]
+        [HttpGet]
+        public IActionResult GetLeave()
+        {
+            var student = db.TeacherLeave.ToList();
+
+            return Ok(student);
+        }
+        
         [Route("GetLeave/{id}")]
         [HttpGet]
         public IActionResult GetLeave(int id)
         {
-            var student = db.TeacherLeave.Find(id);
+            var student = db.TeacherLeave.Where(x=>x.TeacherId==id.ToString());
 
-            return Ok("Leave");
+            return Ok(student);
         }
     }
 }

@@ -81,8 +81,6 @@ namespace SMSWEBAPI.Controllers
 
 
 
-
-
         [Route("GetTeacher")]
         [HttpGet]
         public IActionResult GetTeacher()

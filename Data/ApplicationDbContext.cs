@@ -23,6 +23,11 @@ namespace SMSWEBAPI.Data
         public DbSet<SMS.Models.Application> Applications { get; set; }
         public DbSet<Fees> Fees { get; set; }
         public DbSet<Event> Events { get; set; }
+        public DbSet<DisciplinaryRecord> DisciplinaryRecords { get; set; }
+        public DbSet<HomeworkAssignment> HomeworkAssignments { get; set; }
+        public DbSet<Performance> Performances { get; set; }
+        public DbSet<Curriculum> Curriculums { get; set; }
+        public DbSet<TimeTable> TimeTables { get; set; }
         public DbSet<TeacherLeave> TeacherLeave { get; set; }
     }
 }

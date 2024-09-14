@@ -5,7 +5,7 @@ using SMSWEBAPI.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -19,7 +19,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //{
 //    option.IdleTimeout = TimeSpan.FromMinutes(5);
 //    option.Cookie.HttpOnly = true;
-//    option.Cookie.IsEssential = true;
+//    //option.Cookie.IsEssential = true;
 //});
 //builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 //    .AddCookie(option =>
@@ -28,7 +28,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 //        option.LoginPath = "/Auth/Login";
 //        option.AccessDeniedPath = "/Auth/Login";
 //    });
-builder.Services.AddHttpContextAccessor();
+//builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
